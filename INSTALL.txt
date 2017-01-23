@@ -1,0 +1,13 @@
+﻿TripleA Go AI (Wintersemester 2014/15) - GO Group
+
+BUILD:
+
+Das Ant-Skript build.xml kann zum kompilieren verwendet werden. Hierfür muss ggf. der Java-Installations-Pfad in build_go_group_ai.properties angepasst werden. 
+Die triplea.jar Library im lib Folder wurde nur zum einfacheren Builden mitgeliefert (es handelt sich um die unveränderte Library-Datei).
+
+
+AUSFÜHRUNG:
+
+Die AI erwartet sich eine Java Properties Datei mit dem Namen GO_GROUP_AI.properties im Ausführungsverzeichnis (d.i. das Mutterverzeichnis von /src, /bin).
+In dieser Datei können diverse Parameter wie beispielsweise die Zeit, die sich die MCTS zum Suchen nimmt, konfiguriert werden. In der Abgabe wurde eine entsprechende Properties Datei mitgeliefert und bezüglich Zugdauer gemäß den Vorgaben aus TUWEL konfiguriert, es sollten also keine weiteren Schritte mehr notwendig sein. 
+Wird das Programm allerdings an einen anderen Pfad kopiert, so muss auch die Properties Datei mitkopiert werden.
