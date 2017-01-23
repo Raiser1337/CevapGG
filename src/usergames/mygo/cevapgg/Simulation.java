@@ -23,12 +23,14 @@ public class Simulation
 	private static final int RAVE_DEPTH = 50;
 	private static final int MAX_DEPTH = 300;
 	private final GameState gameState;
+	private Map<Integer, MoveStats> moveStatsMap;
 
 	private List<Move> simulatedMoves;
 
-	public Simulation(GameState initialState)
+	public Simulation(GameState initialState, Map<Integer, MoveStats> moveStatsMap)
 	{
 		this.gameState = new GameState(initialState);
+		this.moveStatsMap = moveStatsMap;
 	}
 
 	public Score simulate()
@@ -43,6 +45,14 @@ public class Simulation
 		while (i < MAX_DEPTH && (possibleMoves = gameState.getAvailableMoves(true)).size() > 0)
 		{
 			Move chosenMove = possibleMoves.get(random.nextInt(possibleMoves.size()));
+			MoveStats stats = moveStatsMap.get(chosenMove.plainHash());
+			if( stats == null ){
+				stats = new MoveStats(chosenMove);
+				moveStatsMap.put(chosenMove.plainHash(), stats);
+			}
+			
+			stats.addMove(chosenMove);
+			
 			gameState.play(chosenMove);
 			if (i < RAVE_DEPTH){
 				simulatedMoves.add(chosenMove);
@@ -53,12 +63,17 @@ public class Simulation
 		// determine the winner
 		ScoreEvaluation scoreEvaluation = new ScoreEvaluation(gameState);
 		Board.Player winner = scoreEvaluation.getWinner();
+		
+		for(MoveStats stats : moveStatsMap.values()){
+			stats.addResult(winner);
+		}
+		
 		if (winner == Board.Player.Self)
 			return Score.Win;
 		else if (winner == Board.Player.Opponent)
 			return Score.Lose;
 		else
-			return Score.Draw;
+			return Score.Draw;			
 	}
 
 	/**
@@ -67,5 +82,10 @@ public class Simulation
 	public List<Move> getSimulatedMoves()
 	{
 		return simulatedMoves;
+	}
+	
+	public Map<Integer, MoveStats> getMoveStats()
+	{
+		return moveStatsMap;
 	}
 }

@@ -10,7 +10,6 @@ import games.strategy.grid.ui.GridPlayData;
 import games.strategy.grid.ui.IGridPlayData;
 import usergames.mygo.cevapgg.MCT;
 import usergames.mygo.game.Move;
-import usergames.mygo.mcts.MCTreeSearch;
 import usergames.mygo.cevapgg.GameState;
 
 public class CevapGG extends GridAbstractAI{

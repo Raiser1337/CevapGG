@@ -1,6 +1,7 @@
 package usergames.mygo.cevapgg;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -18,12 +19,14 @@ import usergames.mygo.cevapgg.Simulation;
 public class MCT {
 	private Random rand;
 	private Node root;
-
-	private static final int AVAILABLE_TIME = 100;
+	private static Map<Integer, MoveStats> moveStatsMap;
+	
+	private static final int AVAILABLE_TIME = 2000;
 
 	public MCT(GameState s0)
 	{
 		root = new Node(s0);
+		moveStatsMap = new HashMap<Integer, MoveStats>();
 	}
 
 	public void search()
@@ -36,7 +39,7 @@ public class MCT {
 		while (searchStartedAt+AVAILABLE_TIME > System.currentTimeMillis())
 		{
 			Node selectedNode = selectNode(root);
-			Simulation simulation = new Simulation(selectedNode.getGameState());
+			Simulation simulation = new Simulation(selectedNode.getGameState(), moveStatsMap);
 			Score score = simulation.simulate();
 			simCount++;
 			updateStats(selectedNode, score, simulation.getSimulatedMoves());
@@ -112,6 +115,11 @@ public class MCT {
 			node.updateStats(score);
 			node = node.getParent();
 		}
+		
+	}
+	
+	public static MoveStats getMoveStat(int moveHash){
+		return moveStatsMap.get(moveHash);
 	}
 	
 }

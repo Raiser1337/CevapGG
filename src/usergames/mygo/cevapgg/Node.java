@@ -59,6 +59,7 @@ public class Node
 		{
 			Map.Entry<Move,Node> entry = iterator.next();
 			Node node=entry.getValue();
+			Move move = entry.getKey();
 
 			// calculate exploration
 			double exploration = UCT_CONST * Math.sqrt(totalSimulations / (double)node.getGamesPlayed());
@@ -70,11 +71,26 @@ public class Node
 			}
 			double exploitationRave = 0.5;
 			double raveWeight = 0;
-			if (node.getRaveGamesPlayed() > 0){
-				exploitationRave = (double)node.getRelevantRaveSize(entry.getKey().getPlayer()) / node.getRaveGamesPlayed();				
-				raveWeight = (double)node.getRaveGamesPlayed() / (node.getGamesPlayed() + node.getRaveGamesPlayed() +
-						RAVE_WEIGHT_CONST * node.getGamesPlayed());
+//			if (node.getRaveGamesPlayed() > 0){
+//				exploitationRave = (double)node.getRelevantRaveSize(entry.getKey().getPlayer()) / node.getRaveGamesPlayed();				
+//				raveWeight = (double)node.getRaveGamesPlayed() / (node.getGamesPlayed() + node.getRaveGamesPlayed() +
+//						RAVE_WEIGHT_CONST * node.getGamesPlayed());
+//			}
+			
+			//Criticality
+			MoveStats stats = MCT.getMoveStat(move.plainHash());
+			if (stats != null){
+				exploitationRave = (double)node.getRelevantRaveSize(entry.getKey().getPlayer()) / node.getRaveGamesPlayed();
+				int v = stats.getLostAgainst() + stats.getWonWith();
+				int w = stats.getGamesPlayedWith();
+				int b = stats.getGamesPlayedAgainst();
+				int W = node.getRelevantRaveSize(entry.getKey().getPlayer());
+				int N = node.getRaveGamesPlayed();
+				int B = N - W; //DRAW GAMES MISSING
+				
+				raveWeight = v / node.getRaveGamesPlayed() - ( (w * W)/ N + (b * B)/ N );
 			}
+			
 
 			double directWeight = 1 - raveWeight;
 			double exploitation = directWeight * exploitationDirect + raveWeight * exploitationRave;

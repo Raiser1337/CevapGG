@@ -66,4 +66,12 @@ public class Move
 		result = 31 * result + player.hashCode();
 		return result;
 	}
+	
+	public int plainHash()
+	{
+		int result = x;
+		result = 31 * result + y;
+		result = 31 * result;
+		return result;
+	}
 }
