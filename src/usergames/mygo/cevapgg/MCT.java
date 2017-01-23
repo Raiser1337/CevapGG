@@ -35,28 +35,10 @@ public class MCT {
 
 		while (searchStartedAt+AVAILABLE_TIME > System.currentTimeMillis())
 		{
-			List<Move> availableMoves;
-			Node selectedNode=root;
-			while ((availableMoves = root.getGameState().getAvailableMoves(false)).size() > 0)
-			{
-				Map<Move,Node> children = root.getChildren();
-				if (children.size() != availableMoves.size())
-				{
-					List<Move> untriedMoves = new ArrayList<>(availableMoves);
-					untriedMoves.removeAll(children.keySet());
-					Move chosenMove = untriedMoves.get(rand.nextInt(untriedMoves.size()));
-					selectedNode= root.expand(chosenMove);
-				}
-				else
-				{
-					selectedNode = selectedNode.selectChild(false).getValue();
-				}
-			}
-			
+			Node selectedNode = selectNode(root);
 			Simulation simulation = new Simulation(selectedNode.getGameState());
 			Score score = simulation.simulate();
 			simCount++;
-			
 			updateStats(selectedNode, score, simulation.getSimulatedMoves());
 		}
 
@@ -68,8 +50,9 @@ public class MCT {
 	public Move chooseMove()
 	{
 		Map.Entry<Move,Node> chosenChild = root.selectChild(true);
-		if (chosenChild == null)
+		if (chosenChild == null){
 			return null;
+		}
 		return chosenChild.getKey();
 	}
 
@@ -80,6 +63,33 @@ public class MCT {
 	{
 		if (root.getChildren().containsKey(move))
 			root.getChildren().remove(move);
+	}
+
+	/**
+	 * Select and expand the next node.
+	 */
+	private Node selectNode(Node node)
+	{
+		List<Move> availableMoves;
+		while ((availableMoves = node.getGameState().getAvailableMoves(false)).size() > 0)
+		{
+			// there are moves available -> the game is not over
+			Map<Move,Node> children = node.getChildren();
+			if (children.size() != availableMoves.size())
+			{
+				// do Expansion
+				List<Move> untriedMoves = new ArrayList<>(availableMoves);
+				untriedMoves.removeAll(children.keySet());
+				Move chosenMove = untriedMoves.get(rand.nextInt(untriedMoves.size()));
+				return node.expand(chosenMove);
+			}
+			else
+			{
+				// we have already expanded all nodes in this level - choose a child and search there for expansion candidates
+				node = node.selectChild(false).getValue();
+			}
+		}
+		return node;
 	}
 
 	/**
@@ -99,8 +109,6 @@ public class MCT {
 				}
 			}
 			simulatedMoves.add(node.getSimulatedMove());
-
-
 			node.updateStats(score);
 			node = node.getParent();
 		}
